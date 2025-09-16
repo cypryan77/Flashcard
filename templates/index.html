@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcard Game</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1>Flashcard Game</h1>
+    <a href="/admin">Admin Panel</a>
+
+    <div id="filter-section">
+        <h2>Select Content</h2>
+        <select id="book-select"></select>
+        <div id="chapter-checkboxes"></div>
+        <button id="start-game">Start Game</button>
+    </div>
+
+    <div id="game-section" style="display: none;">
+        <div id="timer">Time left: <span id="time">10</span>s</div>
+        <div id="card-container">
+            <div id="card">
+                <div class="front"></div>
+                <div class="back"></div>
+            </div>
+        </div>
+        <div id="controls">
+            <button id="show-answer">Show Answer</button>
+            <button id="correct-btn" style="display: none;">Correct</button>
+            <button id="incorrect-btn" style="display: none;">Incorrect</button>
+            <button id="suspend-btn" style="display: none;">Do not show again</button>
+        </div>
+        <div id="score">Score: <span id="score-value">0</span></div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

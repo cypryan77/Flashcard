@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Flashcard Game</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1>Admin Panel</h1>
+    <a href="/">Back to Game</a>
+    <div id="notification" class="hidden"></div>
+
+    <div class="admin-container">
+        <!-- Books Management -->
+        <div class="admin-section">
+            <h2>Books</h2>
+    <form id="book-form">
+        <input type="text" id="book-name" placeholder="New book name" required>
+        <button type="submit">Add Book</button>
+    </form>
+    <ul id="book-list"></ul>
+        </div>
+
+        <!-- Chapters Management -->
+        <div class="admin-section">
+            <h2>Chapters</h2>
+    <form id="chapter-form">
+        <select id="chapter-book-select" required></select>
+        <input type="number" id="chapter-number" placeholder="Chapter number" required>
+        <button type="submit">Add Chapter</button>
+    </form>
+    <ul id="chapter-list"></ul>
+        </div>
+
+        <!-- Cards Management -->
+        <div class="admin-section">
+            <h2>Cards</h2>
+    <form id="card-form">
+        <textarea id="card-question" placeholder="Question" required></textarea>
+        <textarea id="card-answer" placeholder="Answer" required></textarea>
+        <select id="card-chapter-select" multiple required></select>
+        <button type="submit">Add Card</button>
+    </form>
+    <ul id="card-list"></ul>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+</body>
+</html>
