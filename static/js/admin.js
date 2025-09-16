@@ -28,9 +28,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showNotification(message) {
         notification.textContent = message;
-        notification.classList.remove('hidden');
+        notification.classList.add('show');
         setTimeout(() => {
-            notification.classList.add('hidden');
+            notification.classList.remove('show');
         }, 3000);
     }
 
