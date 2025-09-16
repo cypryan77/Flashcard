@@ -99,31 +99,56 @@ const db = {
         return null;
     },
 
-    recordProgress: (cardId, correct, responseTimeMs) => {
+    getCardProgress: (cardId) => {
         const data = db.getData();
+        const DEFAULTS = {
+            correct_count: 0,
+            incorrect_count: 0,
+            score: 0,
+            consecutive_correct_count: 0,
+            weight: 10
+        };
         if (!data.progress[cardId]) {
-            data.progress[cardId] = {
-                correct_count: 0,
-                incorrect_count: 0,
-                score: 0
-            };
+            data.progress[cardId] = { ...DEFAULTS };
+            db.saveData(data);
         }
-        const progress = data.progress[cardId];
+        return { ...DEFAULTS, ...data.progress[cardId] };
+    },
+
+    recordProgress: (cardId, isCorrect, responseTimeMs) => {
+        const data = db.getData();
+        const DEFAULTS = {
+            correct_count: 0,
+            incorrect_count: 0,
+            score: 0,
+            consecutive_correct_count: 0,
+            weight: 10 // Higher weight = more likely to appear
+        };
+
+        if (!data.progress[cardId]) {
+            data.progress[cardId] = { ...DEFAULTS };
+        }
+
+        // Ensure old cards have new fields
+        const progress = { ...DEFAULTS, ...data.progress[cardId] };
+
         progress.last_response_time_ms = responseTimeMs;
 
-        let points = 0;
-        if (correct) {
+        if (isCorrect) {
             progress.correct_count++;
-            if (responseTimeMs <= 10000) {
-                points = 10;
-            } else {
-                points = 5;
-            }
+            progress.consecutive_correct_count++;
+            // Decrease weight, but not below 1
+            progress.weight = Math.max(1, progress.weight - 2);
+            // Add points based on time
+            progress.score += (responseTimeMs <= 10000) ? 10 : 5;
         } else {
             progress.incorrect_count++;
+            // Reset consecutive count and weight
+            progress.consecutive_correct_count = 0;
+            progress.weight = DEFAULTS.weight;
         }
-        progress.score += points;
 
+        data.progress[cardId] = progress;
         db.saveData(data);
         return progress;
     },
