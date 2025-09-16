@@ -44,9 +44,11 @@ a:hover {
 
 /* 2. Main Layout & Panels */
 .admin-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    display: flex;
+    flex-direction: column;
     gap: 2rem;
+    max-width: 900px; /* Constrain width for better readability */
+    margin: 0 auto; /* Center the container */
 }
 
 .admin-section, #filter-section, #game-section {
