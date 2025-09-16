@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let timeLeft = 10;
     let questionStartTime;
     let responseTime;
+    let selectedChapterIds = []; // <--- FIX: Persist selected chapter IDs here
 
     function loadBooks() {
         const books = db.getBooks();
@@ -42,9 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateChapterList() {
         const selectedBookIds = Array.from(bookCheckboxes.querySelectorAll('.book-checkbox:checked')).map(cb => parseInt(cb.value));
 
-        // Preserve currently checked chapters
-        const previouslySelectedChapterIds = Array.from(chapterCheckboxes.querySelectorAll('input:checked')).map(cb => parseInt(cb.value));
-
         chapterCheckboxes.innerHTML = '';
         if (selectedBookIds.length === 0) {
             return;
@@ -58,8 +56,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
             checkbox.value = chapter.id;
-            // Re-check if it was checked before
-            if (previouslySelectedChapterIds.includes(chapter.id)) {
+            // FIX: Check against the persistent list of selected chapters
+            if (selectedChapterIds.includes(chapter.id)) {
                 checkbox.checked = true;
             }
             label.appendChild(checkbox);
@@ -70,8 +68,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     bookCheckboxes.addEventListener('change', updateChapterList);
 
+    // FIX: Add a single event listener to the container to manage chapter selection state
+    chapterCheckboxes.addEventListener('change', (e) => {
+        if (e.target.type === 'checkbox') {
+            const chapterId = parseInt(e.target.value);
+            if (e.target.checked) {
+                if (!selectedChapterIds.includes(chapterId)) {
+                    selectedChapterIds.push(chapterId);
+                }
+            } else {
+                selectedChapterIds = selectedChapterIds.filter(id => id !== chapterId);
+            }
+        }
+    });
+
     startGameBtn.addEventListener('click', () => {
-        const selectedChapterIds = Array.from(chapterCheckboxes.querySelectorAll('input:checked')).map(cb => parseInt(cb.value));
+        // FIX: Use the persistent list of selected chapters
         if (selectedChapterIds.length === 0) {
             alert('Please select at least one chapter.');
             return;
