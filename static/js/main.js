@@ -127,8 +127,15 @@ document.addEventListener('DOMContentLoaded', () => {
         // Reset card state before populating content
         cardElement.classList.remove('flipped');
 
-        cardFront.textContent = card.question;
-        cardBack.textContent = card.answer;
+        // Sanitize content before inserting as HTML to prevent XSS
+        const sanitize = (text) => {
+            const temp = document.createElement('div');
+            temp.textContent = text;
+            return temp.innerHTML;
+        };
+
+        cardFront.innerHTML = `<div class="card-content">${sanitize(card.question)}</div>`;
+        cardBack.innerHTML = `<div class="card-content">${sanitize(card.answer)}</div>`;
         showAnswerBtn.style.display = 'inline-block';
         correctBtn.style.display = 'none';
         incorrectBtn.style.display = 'none';
