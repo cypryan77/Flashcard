@@ -98,10 +98,13 @@ document.addEventListener('DOMContentLoaded', () => {
             endGame();
             return;
         }
+
+        // Reset card state before populating content
+        cardElement.classList.remove('flipped');
+
         const card = cards[currentCardIndex];
         cardFront.textContent = card.question;
         cardBack.textContent = card.answer;
-        cardElement.classList.remove('flipped');
         showAnswerBtn.style.display = 'inline-block';
         correctBtn.style.display = 'none';
         incorrectBtn.style.display = 'none';
