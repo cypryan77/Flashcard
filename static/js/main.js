@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const timerDisplay = document.getElementById('time');
     const cardContainer = document.getElementById('card-container');
+    const cardElement = document.getElementById('card');
     const cardFront = document.querySelector('#card .front');
     const cardBack = document.querySelector('#card .back');
     const showAnswerBtn = document.getElementById('show-answer');
@@ -100,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const card = cards[currentCardIndex];
         cardFront.textContent = card.question;
         cardBack.textContent = card.answer;
-        cardContainer.classList.remove('flipped');
+        cardElement.classList.remove('flipped');
         showAnswerBtn.style.display = 'inline-block';
         correctBtn.style.display = 'none';
         incorrectBtn.style.display = 'none';
@@ -125,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function showAnswer() {
         responseTime = Date.now() - questionStartTime;
         clearInterval(timer);
-        cardContainer.classList.add('flipped');
+        cardElement.classList.add('flipped');
         showAnswerBtn.style.display = 'none';
         correctBtn.style.display = 'inline-block';
         incorrectBtn.style.display = 'inline-block';
