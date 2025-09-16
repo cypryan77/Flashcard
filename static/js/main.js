@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const bookSelect = document.getElementById('book-select');
+    const bookCheckboxes = document.getElementById('book-checkboxes');
     const chapterCheckboxes = document.getElementById('chapter-checkboxes');
     const startGameBtn = document.getElementById('start-game');
     const gameSection = document.getElementById('game-section');
@@ -25,35 +25,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function loadBooks() {
         const books = db.getBooks();
-        bookSelect.innerHTML = '<option value="">Select a book</option>';
+        bookCheckboxes.innerHTML = '';
         books.forEach(book => {
-            const option = document.createElement('option');
-            option.value = book.id;
-            option.textContent = book.name;
-            bookSelect.appendChild(option);
+            const label = document.createElement('label');
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.value = book.id;
+            checkbox.classList.add('book-checkbox');
+            label.appendChild(checkbox);
+            label.append(` ${book.name}`);
+            bookCheckboxes.appendChild(label);
         });
     }
 
-    bookSelect.addEventListener('change', () => {
-        const bookId = parseInt(bookSelect.value);
-        if (!bookId) {
-            chapterCheckboxes.innerHTML = '';
-            return;
-        }
-        const allChapters = db.getChapters();
-        const bookChapters = allChapters.filter(c => c.book_id === bookId);
+    function updateChapterList() {
+        const selectedBookIds = Array.from(bookCheckboxes.querySelectorAll('.book-checkbox:checked')).map(cb => parseInt(cb.value));
+
+        // Preserve currently checked chapters
+        const previouslySelectedChapterIds = Array.from(chapterCheckboxes.querySelectorAll('input:checked')).map(cb => parseInt(cb.value));
 
         chapterCheckboxes.innerHTML = '';
-        bookChapters.forEach(chapter => {
+        if (selectedBookIds.length === 0) {
+            return;
+        }
+
+        const allChapters = db.getChapters();
+        const chaptersToShow = allChapters.filter(c => selectedBookIds.includes(c.book_id));
+
+        chaptersToShow.forEach(chapter => {
             const label = document.createElement('label');
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
             checkbox.value = chapter.id;
+            // Re-check if it was checked before
+            if (previouslySelectedChapterIds.includes(chapter.id)) {
+                checkbox.checked = true;
+            }
             label.appendChild(checkbox);
             label.append(` ${chapter.name}`);
             chapterCheckboxes.appendChild(label);
         });
-    });
+    }
+
+    bookCheckboxes.addEventListener('change', updateChapterList);
 
     startGameBtn.addEventListener('click', () => {
         const selectedChapterIds = Array.from(chapterCheckboxes.querySelectorAll('input:checked')).map(cb => parseInt(cb.value));
