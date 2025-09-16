@@ -236,3 +236,43 @@ li button:hover {
     transform: translateX(0);
     opacity: 1;
 }
+
+/* Styles for Question Management Page */
+.filter-controls {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 1rem;
+}
+.filter-group {
+    flex: 1;
+    border: 1px solid var(--border-color);
+    padding: 1rem;
+    border-radius: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+.filter-group div label {
+    display: block;
+}
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+#questions-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+#questions-table th, #questions-table td {
+    border: 1px solid var(--border-color);
+    padding: 0.75rem;
+    text-align: left;
+    vertical-align: top;
+}
+#questions-table th {
+    background-color: #edf2f7;
+    font-weight: 600;
+}
+#questions-table tbody tr:nth-child(even) {
+    background-color: var(--bg-color);
+}
