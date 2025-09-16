@@ -21,6 +21,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const bulkMoveChapterSelect = document.getElementById('bulk-move-chapter-select');
     const bulkMoveBtn = document.getElementById('bulk-move-btn');
 
+    // CSV Import elements
+    const csvImportInput = document.getElementById('csv-import-input');
+    const importCsvBtn = document.getElementById('import-csv-btn');
+
+
     function showNotification(message) {
         notification.textContent = message;
         notification.classList.remove('hidden');
@@ -183,6 +188,82 @@ document.addEventListener('DOMContentLoaded', () => {
         loadCards();
         showNotification(`${cardIds.length} card(s) moved.`);
     });
+
+    // --- CSV Import Logic ---
+
+    // Simple CSV parser that handles quoted fields.
+    function parseCSV(text) {
+        const rows = text.trim().split('\n');
+        return rows.map(row => {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            for (let i = 0; i < row.length; i++) {
+                const char = row[i];
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current.trim());
+            return result;
+        });
+    }
+
+    async function handleImport() {
+        const file = csvImportInput.files[0];
+        if (!file) {
+            alert('Please select a CSV file to import.');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const text = e.target.result;
+            const data = parseCSV(text);
+            let importedCount = 0;
+
+            data.forEach(row => {
+                if (row.length !== 4) return; // Skip malformed rows
+
+                const [question, answer, chaptersStr, bookName] = row;
+
+                // Find or create book
+                let books = db.getBooks();
+                let book = books.find(b => b.name === bookName);
+                if (!book) {
+                    book = db.createBook(bookName);
+                }
+
+                // Find or create chapters
+                const chapterNames = chaptersStr.split(',').map(c => c.trim());
+                const chapterIds = chapterNames.map(chName => {
+                    let chapters = db.getChapters();
+                    let chapter = chapters.find(c => c.name === chName && c.book_id === book.id);
+                    if (!chapter) {
+                        chapter = db.createChapter(chName, book.id);
+                    }
+                    return chapter.id;
+                });
+
+                // Create card
+                db.createCard(question, answer, chapterIds);
+                importedCount++;
+            });
+
+            // Refresh UI
+            loadInitialData();
+            showNotification(`Successfully imported ${importedCount} card(s).`);
+        };
+        reader.readAsText(file);
+    }
+
+    importCsvBtn.addEventListener('click', handleImport);
+
 
     loadInitialData();
 });
