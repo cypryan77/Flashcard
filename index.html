@@ -19,6 +19,19 @@
         <button id="start-game">Start Game</button>
     </div>
 
+    <div id="review-section">
+        <h2>Review Problem Cards</h2>
+        <p>Create a temporary deck from cards answered incorrectly a certain number of times within a time period.</p>
+        <div class="review-controls">
+            <label for="incorrect-threshold">Incorrect at least:</label>
+            <input type="number" id="incorrect-threshold" value="2" min="1">
+            <label for="review-days">times in the last:</label>
+            <input type="number" id="review-days" value="30" min="1">
+            <label for="review-days">days.</label>
+        </div>
+        <button id="start-review-btn">Start Review Session</button>
+    </div>
+
     <div id="game-section" style="display: none;">
         <div id="timer">Time left: <span id="time">10</span>s</div>
         <div id="card-container">
@@ -32,6 +45,7 @@
             <button id="correct-btn" style="display: none;">Correct</button>
             <button id="incorrect-btn" style="display: none;">Incorrect</button>
             <button id="suspend-btn" style="display: none;">Do not show again</button>
+            <button id="important-btn" style="display: none;">Mark as Important</button>
         </div>
         <div id="score">Score: <span id="score-value">0</span></div>
     </div>

@@ -69,7 +69,8 @@ const db = {
             question: question,
             answer: answer,
             chapters: chapterIds,
-            suspended: false
+            suspended: false,
+            is_important: false // New property
         };
         data.cards.push(newCard);
 
@@ -99,6 +100,27 @@ const db = {
         return null;
     },
 
+    toggleImportantStatus: (cardId) => {
+        const data = db.getData();
+        const card = data.cards.find(c => c.id === cardId);
+        if (card) {
+            // Ensure is_important property exists
+            card.is_important = !card.is_important;
+
+            // Boost weight if it's now important
+            if (card.is_important) {
+                const progress = db.getCardProgress(cardId);
+                progress.weight += 20; // Add a significant weight boost
+                data.progress[cardId] = progress;
+            }
+            // If unmarked, weight will naturally decrease with correct answers.
+
+            db.saveData(data);
+            return card;
+        }
+        return null;
+    },
+
     getCardProgress: (cardId) => {
         const data = db.getData();
         const DEFAULTS = {
@@ -122,7 +144,8 @@ const db = {
             incorrect_count: 0,
             score: 0,
             consecutive_correct_count: 0,
-            weight: 10 // Higher weight = more likely to appear
+            weight: 10, // Higher weight = more likely to appear
+            last_seen_at: null
         };
 
         if (!data.progress[cardId]) {
@@ -133,6 +156,7 @@ const db = {
         const progress = { ...DEFAULTS, ...data.progress[cardId] };
 
         progress.last_response_time_ms = responseTimeMs;
+        progress.last_seen_at = new Date().toISOString();
 
         if (isCorrect) {
             progress.correct_count++;
