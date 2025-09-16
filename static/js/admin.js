@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const chapterForm = document.getElementById('chapter-form');
     const chapterBookSelect = document.getElementById('chapter-book-select');
-    const chapterNumberInput = document.getElementById('chapter-number');
+    const chapterNameInput = document.getElementById('chapter-name');
     const chapterList = document.getElementById('chapter-list');
 
     const cardForm = document.getElementById('card-form');
@@ -64,20 +64,20 @@ document.addEventListener('DOMContentLoaded', () => {
         chapters.forEach(chapter => {
             const book = books.find(b => b.id === chapter.book_id);
             const li = document.createElement('li');
-            li.textContent = `Chapter ${chapter.number} (${book ? book.name : 'Unknown Book'})`;
+            li.textContent = `${chapter.name} (${book ? book.name : 'Unknown Book'})`;
             chapterList.appendChild(li);
 
             const option = document.createElement('option');
             option.value = chapter.id;
-            option.textContent = `Chapter ${chapter.number} (${book ? book.name : 'Unknown Book'})`;
+            option.textContent = `${chapter.name} (${book ? book.name : 'Unknown Book'})`;
             cardChapterSelect.appendChild(option);
         });
     }
 
     chapterForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        db.createChapter(parseInt(chapterNumberInput.value), parseInt(chapterBookSelect.value));
-        chapterNumberInput.value = '';
+        db.createChapter(chapterNameInput.value, parseInt(chapterBookSelect.value));
+        chapterNameInput.value = '';
         loadChapters();
         showNotification('Chapter added successfully!');
     });

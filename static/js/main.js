@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
             checkbox.type = 'checkbox';
             checkbox.value = chapter.id;
             label.appendChild(checkbox);
-            label.append(` Chapter ${chapter.number}`);
+            label.append(` ${chapter.name}`);
             chapterCheckboxes.appendChild(label);
         });
     });

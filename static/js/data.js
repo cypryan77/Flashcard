@@ -44,9 +44,9 @@ const db = {
         return db.getData().books;
     },
 
-    createChapter: (number, bookId) => {
+    createChapter: (name, bookId) => {
         const data = db.getData();
-        const newChapter = { id: db.generateId(data), number: number, book_id: bookId, cards: [] };
+        const newChapter = { id: db.generateId(data), name: name, book_id: bookId, cards: [] };
         data.chapters.push(newChapter);
 
         const book = data.books.find(b => b.id === bookId);
