@@ -1,19 +1,25 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Existing elements
     const bookForm = document.getElementById('book-form');
     const bookNameInput = document.getElementById('book-name');
     const bookList = document.getElementById('book-list');
-
     const chapterForm = document.getElementById('chapter-form');
     const chapterBookSelect = document.getElementById('chapter-book-select');
     const chapterNameInput = document.getElementById('chapter-name');
     const chapterList = document.getElementById('chapter-list');
-
     const cardForm = document.getElementById('card-form');
     const cardQuestionInput = document.getElementById('card-question');
     const cardAnswerInput = document.getElementById('card-answer');
     const cardChapterSelect = document.getElementById('card-chapter-select');
     const cardList = document.getElementById('card-list');
     const notification = document.getElementById('notification');
+
+    // New bulk action elements
+    const selectAllCardsCheckbox = document.getElementById('select-all-cards');
+    const bulkActionsPanel = document.getElementById('bulk-actions');
+    const bulkDeleteBtn = document.getElementById('bulk-delete-btn');
+    const bulkMoveChapterSelect = document.getElementById('bulk-move-chapter-select');
+    const bulkMoveBtn = document.getElementById('bulk-move-btn');
 
     function showNotification(message) {
         notification.textContent = message;
@@ -23,11 +29,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
 
-    // Load initial data
     function loadInitialData() {
         loadBooks();
         loadChapters();
         loadCards();
+        updateBulkActionsPanel();
     }
 
     // Book functions
@@ -61,16 +67,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const books = db.getBooks();
         chapterList.innerHTML = '';
         cardChapterSelect.innerHTML = '';
+        bulkMoveChapterSelect.innerHTML = ''; // Populate bulk move dropdown
         chapters.forEach(chapter => {
             const book = books.find(b => b.id === chapter.book_id);
+            const text = `${chapter.name} (${book ? book.name : 'Unknown Book'})`;
+
             const li = document.createElement('li');
-            li.textContent = `${chapter.name} (${book ? book.name : 'Unknown Book'})`;
+            li.textContent = text;
             chapterList.appendChild(li);
 
-            const option = document.createElement('option');
-            option.value = chapter.id;
-            option.textContent = `${chapter.name} (${book ? book.name : 'Unknown Book'})`;
-            cardChapterSelect.appendChild(option);
+            const option1 = document.createElement('option');
+            option1.value = chapter.id;
+            option1.textContent = text;
+            cardChapterSelect.appendChild(option1);
+
+            const option2 = document.createElement('option');
+            option2.value = chapter.id;
+            option2.textContent = text;
+            bulkMoveChapterSelect.appendChild(option2);
         });
     }
 
@@ -89,6 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
         cards.forEach(card => {
             const li = document.createElement('li');
             li.innerHTML = `
+                <input type="checkbox" class="card-checkbox" data-id="${card.id}">
                 <span>Q: ${card.question} ${card.suspended ? '(Suspended)' : ''}</span>
                 <button class="toggle-suspend-btn" data-id="${card.id}" data-suspended="${card.suspended}">
                     ${card.suspended ? 'Unsuspend' : 'Suspend'}
@@ -96,6 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             cardList.appendChild(li);
         });
+        updateBulkActionsPanel();
     }
 
     cardForm.addEventListener('submit', (e) => {
@@ -108,7 +124,30 @@ document.addEventListener('DOMContentLoaded', () => {
         showNotification('Card added successfully!');
     });
 
+    // --- Bulk Actions Logic ---
+
+    function getSelectedCardIds() {
+        return Array.from(cardList.querySelectorAll('.card-checkbox:checked')).map(cb => parseInt(cb.dataset.id));
+    }
+
+    function updateBulkActionsPanel() {
+        const selectedIds = getSelectedCardIds();
+        if (selectedIds.length > 0) {
+            bulkActionsPanel.classList.remove('d-none');
+        } else {
+            bulkActionsPanel.classList.add('d-none');
+        }
+    }
+
+    selectAllCardsCheckbox.addEventListener('change', (e) => {
+        cardList.querySelectorAll('.card-checkbox').forEach(checkbox => {
+            checkbox.checked = e.target.checked;
+        });
+        updateBulkActionsPanel();
+    });
+
     cardList.addEventListener('click', (e) => {
+        // Toggle suspend logic
         if (e.target.classList.contains('toggle-suspend-btn')) {
             const cardId = parseInt(e.target.dataset.id);
             const isSuspended = e.target.dataset.suspended === 'true';
@@ -116,6 +155,33 @@ document.addEventListener('DOMContentLoaded', () => {
             loadCards();
             showNotification(`Card ${!isSuspended ? 'suspended' : 'unsuspended'}.`);
         }
+        // Checkbox click logic
+        if (e.target.classList.contains('card-checkbox')) {
+            updateBulkActionsPanel();
+        }
+    });
+
+    bulkDeleteBtn.addEventListener('click', () => {
+        const selectedIds = getSelectedCardIds();
+        if (confirm(`Are you sure you want to delete ${selectedIds.length} card(s)?`)) {
+            db.deleteCards(selectedIds);
+            loadCards();
+            showNotification(`${selectedIds.length} card(s) deleted.`);
+        }
+    });
+
+    bulkMoveBtn.addEventListener('click', () => {
+        const cardIds = getSelectedCardIds();
+        const chapterIds = Array.from(bulkMoveChapterSelect.selectedOptions).map(opt => parseInt(opt.value));
+
+        if (chapterIds.length === 0) {
+            alert('Please select at least one destination chapter.');
+            return;
+        }
+
+        db.moveCards(cardIds, chapterIds);
+        loadCards();
+        showNotification(`${cardIds.length} card(s) moved.`);
     });
 
     loadInitialData();

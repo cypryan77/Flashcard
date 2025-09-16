@@ -126,6 +126,43 @@ const db = {
 
         db.saveData(data);
         return progress;
+    },
+
+    deleteCards: (cardIds) => {
+        const data = db.getData();
+        // Remove cards from the main cards array
+        data.cards = data.cards.filter(card => !cardIds.includes(card.id));
+        // Remove card references from chapters
+        data.chapters.forEach(chapter => {
+            chapter.cards = chapter.cards.filter(cardId => !cardIds.includes(cardId));
+        });
+        // Remove progress data
+        cardIds.forEach(cardId => {
+            delete data.progress[cardId];
+        });
+        db.saveData(data);
+    },
+
+    moveCards: (cardIds, newChapterIds) => {
+        const data = db.getData();
+        // First, remove card references from all old chapters
+        data.chapters.forEach(chapter => {
+            chapter.cards = chapter.cards.filter(cardId => !cardIds.includes(cardId));
+        });
+        // Then, update the card's chapter list and add references to new chapters
+        cardIds.forEach(cardId => {
+            const card = data.cards.find(c => c.id === cardId);
+            if (card) {
+                card.chapters = newChapterIds;
+                newChapterIds.forEach(chId => {
+                    const chapter = data.chapters.find(c => c.id === chId);
+                    if (chapter && !chapter.cards.includes(cardId)) {
+                        chapter.cards.push(cardId);
+                    }
+                });
+            }
+        });
+        db.saveData(data);
     }
 };
 

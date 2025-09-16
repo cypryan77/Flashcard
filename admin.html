@@ -42,7 +42,19 @@
         <select id="card-chapter-select" multiple required></select>
         <button type="submit">Add Card</button>
     </form>
+    <div>
+        <input type="checkbox" id="select-all-cards">
+        <label for="select-all-cards">Select All</label>
+    </div>
     <ul id="card-list"></ul>
+    <div id="bulk-actions" class="d-none">
+        <h3>Bulk Actions</h3>
+        <button id="bulk-delete-btn">Delete Selected</button>
+        <hr>
+        <label for="bulk-move-chapter-select">Move to:</label>
+        <select id="bulk-move-chapter-select" multiple></select>
+        <button id="bulk-move-btn">Move Selected</button>
+    </div>
         </div>
     </div>
 

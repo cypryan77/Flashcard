@@ -42,6 +42,10 @@ a:hover {
     opacity: 0;
 }
 
+.d-none {
+    display: none;
+}
+
 #card-container {
     perspective: 1000px;
     width: 300px;
