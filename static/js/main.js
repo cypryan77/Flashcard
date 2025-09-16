@@ -23,11 +23,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let questionStartTime;
     let responseTime;
 
-    const API_URL = '/api';
-
-    async function loadBooks() {
-        const response = await fetch(`${API_URL}/books`);
-        const books = await response.json();
+    function loadBooks() {
+        const books = db.getBooks();
         bookSelect.innerHTML = '<option value="">Select a book</option>';
         books.forEach(book => {
             const option = document.createElement('option');
@@ -37,15 +34,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    bookSelect.addEventListener('change', async () => {
-        const bookId = bookSelect.value;
+    bookSelect.addEventListener('change', () => {
+        const bookId = parseInt(bookSelect.value);
         if (!bookId) {
             chapterCheckboxes.innerHTML = '';
             return;
         }
-        const response = await fetch(`${API_URL}/chapters`);
-        const allChapters = await response.json();
-        const bookChapters = allChapters.filter(c => c.book_id == bookId);
+        const allChapters = db.getChapters();
+        const bookChapters = allChapters.filter(c => c.book_id === bookId);
 
         chapterCheckboxes.innerHTML = '';
         bookChapters.forEach(chapter => {
@@ -59,16 +55,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    startGameBtn.addEventListener('click', async () => {
-        const selectedChapterIds = Array.from(chapterCheckboxes.querySelectorAll('input:checked')).map(cb => cb.value);
+    startGameBtn.addEventListener('click', () => {
+        const selectedChapterIds = Array.from(chapterCheckboxes.querySelectorAll('input:checked')).map(cb => parseInt(cb.value));
         if (selectedChapterIds.length === 0) {
             alert('Please select at least one chapter.');
             return;
         }
 
-        const response = await fetch(`${API_URL}/cards`);
-        const allCards = await response.json();
-        cards = allCards.filter(card => !card.suspended && card.chapters.some(ch_id => selectedChapterIds.includes(ch_id.toString())));
+        const allCards = db.getCards();
+        cards = allCards.filter(card => !card.suspended && card.chapters.some(ch_id => selectedChapterIds.includes(ch_id)));
 
         if (cards.length === 0) {
             alert('No cards found for the selected chapters.');
@@ -125,29 +120,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     showAnswerBtn.addEventListener('click', showAnswer);
 
-    suspendBtn.addEventListener('click', async () => {
+    suspendBtn.addEventListener('click', () => {
         const card = cards[currentCardIndex];
-        await fetch(`${API_URL}/cards/${card.id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ suspended: true })
-        });
-        // Remove from current session and move to next card
+        db.updateCard(card.id, { suspended: true });
         cards.splice(currentCardIndex, 1);
         displayCard();
     });
 
-    async function handleAnswer(correct) {
+    function handleAnswer(correct) {
         const card = cards[currentCardIndex];
-        const response = await fetch(`${API_URL}/cards/${card.id}/progress`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                correct: correct,
-                response_time_ms: responseTime
-            })
-        });
-        const data = await response.json();
+        const progress = db.recordProgress(card.id, correct, responseTime);
 
         if (correct) {
             if (responseTime <= 10000) {

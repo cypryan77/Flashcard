@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flashcard Game</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="static/css/style.css">
 </head>
 <body>
     <h1>Flashcard Game</h1>
-    <a href="/admin">Admin Panel</a>
+    <a href="admin.html">Admin Panel</a>
 
     <div id="filter-section">
         <h2>Select Content</h2>
@@ -34,6 +34,7 @@
         <div id="score">Score: <span id="score-value">0</span></div>
     </div>
 
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="static/js/data.js"></script>
+    <script src="static/js/main.js"></script>
 </body>
 </html>

@@ -15,8 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const cardList = document.getElementById('card-list');
     const notification = document.getElementById('notification');
 
-    const API_URL = '/api';
-
     function showNotification(message) {
         notification.textContent = message;
         notification.classList.remove('hidden');
@@ -25,17 +23,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
 
-    // Fetch and display all data on page load
-    async function loadInitialData() {
-        await loadBooks();
-        await loadChapters();
-        await loadCards();
+    // Load initial data
+    function loadInitialData() {
+        loadBooks();
+        loadChapters();
+        loadCards();
     }
 
     // Book functions
-    async function loadBooks() {
-        const response = await fetch(`${API_URL}/books`);
-        const books = await response.json();
+    function loadBooks() {
+        const books = db.getBooks();
         bookList.innerHTML = '';
         chapterBookSelect.innerHTML = '';
         books.forEach(book => {
@@ -50,59 +47,44 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    bookForm.addEventListener('submit', async (e) => {
+    bookForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const response = await fetch(`${API_URL}/books`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: bookNameInput.value })
-        });
-        if (response.ok) {
-            bookNameInput.value = '';
-            await loadBooks();
-            showNotification('Book added successfully!');
-        }
+        db.createBook(bookNameInput.value);
+        bookNameInput.value = '';
+        loadBooks();
+        showNotification('Book added successfully!');
     });
 
     // Chapter functions
-    async function loadChapters() {
-        const response = await fetch(`${API_URL}/chapters`);
-        const chapters = await response.json();
+    function loadChapters() {
+        const chapters = db.getChapters();
+        const books = db.getBooks();
         chapterList.innerHTML = '';
         cardChapterSelect.innerHTML = '';
         chapters.forEach(chapter => {
+            const book = books.find(b => b.id === chapter.book_id);
             const li = document.createElement('li');
-            li.textContent = `Chapter ${chapter.number} (Book ID: ${chapter.book_id})`;
+            li.textContent = `Chapter ${chapter.number} (${book ? book.name : 'Unknown Book'})`;
             chapterList.appendChild(li);
 
             const option = document.createElement('option');
             option.value = chapter.id;
-            option.textContent = `Chapter ${chapter.number} (Book ID: ${chapter.book_id})`;
+            option.textContent = `Chapter ${chapter.number} (${book ? book.name : 'Unknown Book'})`;
             cardChapterSelect.appendChild(option);
         });
     }
 
-    chapterForm.addEventListener('submit', async (e) => {
+    chapterForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const response = await fetch(`${API_URL}/chapters`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                number: parseInt(chapterNumberInput.value),
-                book_id: parseInt(chapterBookSelect.value)
-            })
-        });
-        if (response.ok) {
-            chapterNumberInput.value = '';
-            await loadChapters();
-            showNotification('Chapter added successfully!');
-        }
+        db.createChapter(parseInt(chapterNumberInput.value), parseInt(chapterBookSelect.value));
+        chapterNumberInput.value = '';
+        loadChapters();
+        showNotification('Chapter added successfully!');
     });
 
     // Card functions
-    async function loadCards() {
-        const response = await fetch(`${API_URL}/cards`);
-        const cards = await response.json();
+    function loadCards() {
+        const cards = db.getCards();
         cardList.innerHTML = '';
         cards.forEach(card => {
             const li = document.createElement('li');
@@ -116,39 +98,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    cardForm.addEventListener('submit', async (e) => {
+    cardForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const selectedChapterIds = Array.from(cardChapterSelect.selectedOptions).map(opt => parseInt(opt.value));
-        const response = await fetch(`${API_URL}/cards`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                question: cardQuestionInput.value,
-                answer: cardAnswerInput.value,
-                chapter_ids: selectedChapterIds
-            })
-        });
-        if (response.ok) {
-            cardQuestionInput.value = '';
-            cardAnswerInput.value = '';
-            await loadCards();
-            showNotification('Card added successfully!');
-        }
+        db.createCard(cardQuestionInput.value, cardAnswerInput.value, selectedChapterIds);
+        cardQuestionInput.value = '';
+        cardAnswerInput.value = '';
+        loadCards();
+        showNotification('Card added successfully!');
     });
 
-    cardList.addEventListener('click', async (e) => {
+    cardList.addEventListener('click', (e) => {
         if (e.target.classList.contains('toggle-suspend-btn')) {
-            const cardId = e.target.dataset.id;
+            const cardId = parseInt(e.target.dataset.id);
             const isSuspended = e.target.dataset.suspended === 'true';
-            const response = await fetch(`${API_URL}/cards/${cardId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ suspended: !isSuspended })
-            });
-            if (response.ok) {
-                await loadCards();
-                showNotification(`Card ${!isSuspended ? 'suspended' : 'unsuspended'}.`);
-            }
+            db.updateCard(cardId, { suspended: !isSuspended });
+            loadCards();
+            showNotification(`Card ${!isSuspended ? 'suspended' : 'unsuspended'}.`);
         }
     });
 
