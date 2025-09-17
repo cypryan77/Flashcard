@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Question Management - Flashcard App</title>
+    <link rel="stylesheet" href="static/css/style.css">
+    <script src="static/js/theme.js"></script>
+</head>
+<body>
+    <div class="theme-switcher">
+        <button data-theme="light">Light</button>
+        <button data-theme="dark">Dark</button>
+        <button data-theme="sepia">Sepia</button>
+    </div>
+    <h1>Question Management</h1>
+    <p style="text-align: center;">
+        <a href="index.html">Back to Game</a> |
+        <a href="admin.html">Admin Panel</a>
+    </p>
+
+    <div id="filter-section">
+        <h2>Filter Questions</h2>
+        <div class="filter-controls">
+            <div class="filter-group">
+                <h3>Filter by Book</h3>
+                <div id="book-filter-checkboxes"></div>
+            </div>
+            <div class="filter-group">
+                <h3>Filter by Chapter</h3>
+                <div id="chapter-filter-checkboxes"></div>
+            </div>
+        </div>
+        <button id="apply-filters-btn">Apply Filters</button>
+    </div>
+
+    <div class="results-section">
+        <h2>Filtered Questions</h2>
+        <div class="table-container">
+            <table id="questions-table">
+                <thead>
+                    <tr>
+                        <th>Question</th>
+                        <th>Answer</th>
+                        <th>Chapters</th>
+                        <th>Correct</th>
+                        <th>Incorrect</th>
+                        <th>Consecutive</th>
+                        <th>Weight</th>
+                        <th>Suspended</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Rows will be inserted here by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="static/js/data.js"></script>
+    <script src="static/js/questions.js"></script>
+
+    <footer>
+        Programa hecho especial para la dermatologa Yiyi.
+    </footer>
+</body>
+</html>

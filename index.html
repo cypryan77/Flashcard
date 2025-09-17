@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcard Game</title>
+    <link rel="stylesheet" href="static/css/style.css">
+    <script src="static/js/theme.js"></script>
+</head>
+<body>
+    <div class="theme-switcher">
+        <button data-theme="light">Light</button>
+        <button data-theme="dark">Dark</button>
+        <button data-theme="sepia">Sepia</button>
+    </div>
+    <h1>Flashcard Game</h1>
+    <a href="admin.html">Admin Panel</a>
+
+    <div id="filter-section">
+        <h2>Select Content</h2>
+        <h3>Books</h3>
+        <div id="book-checkboxes"></div>
+        <h3>Chapters</h3>
+        <div id="chapter-checkboxes"></div>
+        <button id="start-game">Start Game</button>
+    </div>
+
+    <div id="settings-section">
+        <h2>Game Settings</h2>
+        <div class="setting-control">
+            <label for="timer-duration">Timer Duration (seconds):</label>
+            <input type="number" id="timer-duration" value="10" min="1">
+        </div>
+        <div class="setting-control">
+            <label for="timer-disable">Disable Timer (manual flip):</label>
+            <input type="checkbox" id="timer-disable">
+        </div>
+    </div>
+
+    <div id="review-section">
+        <h2>Review Problem Cards</h2>
+        <p>Create a temporary deck from cards answered incorrectly a certain number of times within a time period.</p>
+        <div class="review-controls">
+            <label for="incorrect-threshold">Incorrect at least:</label>
+            <input type="number" id="incorrect-threshold" value="2" min="1">
+            <label for="review-days">times in the last:</label>
+            <input type="number" id="review-days" value="30" min="1">
+            <label for="review-days">days.</label>
+        </div>
+        <button id="start-review-btn">Start Review Session</button>
+    </div>
+
+    <div id="game-section" style="display: none;">
+        <div id="timer">Time left: <span id="time">10</span>s</div>
+        <div id="card-container">
+            <div id="card">
+                <div class="front"></div>
+                <div class="back"></div>
+            </div>
+        </div>
+        <div id="controls">
+            <button id="show-answer">Show Answer</button>
+            <button id="correct-btn" style="display: none;">Correct</button>
+            <button id="incorrect-btn" style="display: none;">Incorrect</button>
+            <button id="suspend-btn" style="display: none;">Do not show again</button>
+            <button id="important-btn" style="display: none;">Mark as Important</button>
+        </div>
+        <div id="score">Score: <span id="score-value">0</span></div>
+    </div>
+
+    <script src="static/js/data.js"></script>
+    <script src="static/js/main.js"></script>
+
+    <footer>
+        Programa hecho especial para la dermatologa Yiyi.
+    </footer>
+</body>
+</html>

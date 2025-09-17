@@ -1,0 +1,382 @@
+/* --- A More Modern Design for the Flashcard App --- */
+
+/* 1. Variables and Root Styles */
+:root {
+    --bg-color: #f7f9fc;
+    --panel-bg: #ffffff;
+    --text-color: #2d3748; /* Darker gray */
+    --subtle-text: #718096;
+    --primary-color: #4299e1; /* A nice blue */
+    --primary-hover: #2b6cb0;
+    --danger-color: #e53e3e; /* Red for delete */
+    --danger-hover: #c53030;
+    --border-color: #e2e8f0;
+    --shadow-color: rgba(0, 0, 0, 0.05);
+    --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* 1a. Dark Theme */
+[data-theme="dark"] {
+    --bg-color: #1a202c;
+    --panel-bg: #2d3748;
+    --text-color: #e2e8f0;
+    --subtle-text: #a0aec0;
+    --primary-color: #63b3ed;
+    --primary-hover: #90cdf4;
+    --border-color: #4a5568;
+    --shadow-color: rgba(0, 0, 0, 0.2);
+}
+[data-theme="dark"] #card .back { background-color: #1a202c; }
+[data-theme="dark"] li:hover { background-color: #4a5568; }
+
+/* 1b. Sepia Theme */
+[data-theme="sepia"] {
+    --bg-color: #f1e7d0;
+    --panel-bg: #fdf6e3;
+    --text-color: #586e75;
+    --subtle-text: #839496;
+    --primary-color: #268bd2;
+    --primary-hover: #2aa198;
+    --danger-color: #dc322f;
+    --danger-hover: #cb4b16;
+    --border-color: #eee8d5;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+[data-theme="sepia"] #card .back { background-color: #eee8d5; }
+[data-theme="sepia"] li:hover { background-color: #eee8d5; }
+
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 2rem;
+    line-height: 1.6;
+}
+
+h1, h2, h3 {
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+h1 { font-size: 2rem; margin-bottom: 2rem; text-align: center; }
+h2 { font-size: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem; }
+h3 { font-size: 1.2rem; color: var(--subtle-text); }
+
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+a:hover {
+    text-decoration: underline;
+}
+
+/* 2. Main Layout & Panels */
+.admin-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    max-width: 900px; /* Constrain width for better readability */
+    margin: 0 auto; /* Center the container */
+}
+
+.admin-section, #filter-section, #game-section, #review-section, #settings-section {
+    background: var(--panel-bg);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    border: 1px solid var(--border-color);
+}
+
+.admin-section {
+    display: flex;
+    flex-direction: column;
+}
+
+/* 3. Forms and Controls */
+form {
+    margin-bottom: 1.5rem;
+}
+
+input[type="text"], input[type="number"], textarea, select {
+    width: 100%;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    font-size: 1rem;
+    background-color: var(--bg-color);
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+}
+
+button, input[type="submit"] {
+    font-family: var(--font-family);
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    background-color: var(--primary-color);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    -webkit-appearance: none;
+}
+
+button:hover, input[type="submit"]:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+button.danger, button#bulk-delete-btn {
+    background-color: var(--danger-color);
+}
+button.danger:hover, button#bulk-delete-btn:hover {
+    background-color: var(--danger-hover);
+}
+
+/* 4. Lists (Books, Chapters, Cards) */
+.admin-section ul {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    padding: 0.5rem;
+    border-radius: 8px;
+    flex-grow: 1; /* For flex layout */
+}
+
+li {
+    background: var(--panel-bg);
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.2s;
+}
+
+li:hover {
+    background-color: #f7f9fc;
+}
+
+li span {
+    flex-grow: 1;
+    margin-left: 0.5rem;
+}
+
+li button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+    background-color: #a0aec0; /* Gray */
+}
+li button:hover {
+    background-color: #718096;
+}
+
+/* 5. Game-specific Styles */
+#card-container {
+    perspective: 1000px;
+    width: clamp(280px, 90vw, 800px); /* Min width, preferred width, max width */
+    margin: 2rem auto;
+    aspect-ratio: 16 / 9;
+    max-height: 70vh; /* Don't let it be taller than 70% of the screen */
+}
+
+#card {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.6s;
+}
+
+#card.flipped {
+    transform: rotateY(180deg);
+}
+
+#card .front, #card .back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    border: 1px solid var(--border-color);
+    font-size: clamp(1.2rem, 5vmin, 3rem);
+    text-align: center;
+}
+
+.card-content {
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    overflow-wrap: break-word;
+}
+
+#card .front {
+    background-color: var(--panel-bg);
+}
+
+#card .back {
+    background-color: #edf2f7;
+    transform: rotateY(180deg);
+}
+
+#timer {
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--subtle-text);
+}
+
+#score {
+    text-align: center;
+    font-size: 1.2rem;
+    margin-top: 1rem;
+}
+
+/* 6. Utility and Misc */
+.d-none {
+    display: none;
+}
+
+#notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #38a169; /* Green */
+    color: white;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: all 0.5s ease-in-out;
+    transform: translateX(120%);
+    opacity: 0;
+    z-index: 100;
+}
+
+#notification.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+/* Theme Switcher Styles */
+.theme-switcher {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    gap: 0.5rem;
+}
+.theme-switcher button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+    background-color: var(--subtle-text);
+}
+
+/* Styles for Question Management Page */
+.filter-controls {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 1rem;
+}
+.filter-group {
+    flex: 1;
+    border: 1px solid var(--border-color);
+    padding: 1rem;
+    border-radius: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+.filter-group div label {
+    display: block;
+}
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+#questions-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+#questions-table th, #questions-table td {
+    border: 1px solid var(--border-color);
+    padding: 0.75rem;
+    text-align: left;
+    vertical-align: top;
+}
+#questions-table th {
+    background-color: #edf2f7;
+    font-weight: 600;
+}
+#questions-table tbody tr:nth-child(even) {
+    background-color: var(--bg-color);
+}
+
+.review-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 1rem 0;
+}
+.review-controls input[type="number"] {
+    width: 80px;
+    margin-bottom: 0;
+}
+
+/* Footer Styles */
+footer {
+    text-align: center;
+    margin-top: 3rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    font-size: 0.9rem;
+    color: var(--subtle-text);
+}
+
+/* Card Creation Form */
+#card-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+.card-form-side {
+    flex: 1;
+    min-width: 250px;
+}
+.image-preview {
+    max-width: 100%;
+    height: auto;
+    margin-top: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    display: none; /* Hidden by default */
+}
+
+.setting-control {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+.setting-control input[type="number"] {
+    width: 80px;
+    margin-bottom: 0;
+}

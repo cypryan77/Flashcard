@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Flashcard Game</title>
+    <link rel="stylesheet" href="static/css/style.css">
+    <script src="static/js/theme.js"></script>
+</head>
+<body>
+    <div class="theme-switcher">
+        <button data-theme="light">Light</button>
+        <button data-theme="dark">Dark</button>
+        <button data-theme="sepia">Sepia</button>
+    </div>
+    <h1>Admin Panel</h1>
+    <p style="text-align: center;">
+        <a href="index.html">Back to Game</a> |
+        <a href="questions.html">Question Management</a>
+    </p>
+    <div id="notification" class="hidden"></div>
+
+    <div class="admin-container">
+        <!-- Books Management -->
+        <div class="admin-section">
+            <h2>Books</h2>
+    <form id="book-form">
+        <input type="text" id="book-name" placeholder="New book name" required>
+        <button type="submit">Add Book</button>
+    </form>
+    <ul id="book-list"></ul>
+        </div>
+
+        <!-- Chapters Management -->
+        <div class="admin-section">
+            <h2>Chapters</h2>
+    <form id="chapter-form">
+        <select id="chapter-book-select" required></select>
+        <input type="text" id="chapter-name" placeholder="Chapter name" required>
+        <button type="submit">Add Chapter</button>
+    </form>
+    <ul id="chapter-list"></ul>
+        </div>
+
+        <!-- Cards Management -->
+        <div class="admin-section">
+            <h2>Cards</h2>
+            <form id="card-form">
+                <div class="card-form-side">
+                    <label for="card-front-text">Front Text</label>
+                    <textarea id="card-front-text" placeholder="Text for the front of the card"></textarea>
+                    <label for="card-front-image">Front Image</label>
+                    <input type="file" id="card-front-image" accept="image/*">
+                    <img id="front-image-preview" class="image-preview" src="" alt="Front image preview">
+                </div>
+                <div class="card-form-side">
+                    <label for="card-back-text">Back Text</label>
+                    <textarea id="card-back-text" placeholder="Text for the back of the card"></textarea>
+                    <label for="card-back-image">Back Image</label>
+                    <input type="file" id="card-back-image" accept="image/*">
+                    <img id="back-image-preview" class="image-preview" src="" alt="Back image preview">
+                </div>
+                <label for="card-chapter-select">Chapters</label>
+                <select id="card-chapter-select" multiple required></select>
+                <button type="submit">Add Card</button>
+            </form>
+    <div>
+        <input type="checkbox" id="select-all-cards">
+        <label for="select-all-cards">Select All</label>
+    </div>
+    <ul id="card-list"></ul>
+    <div id="bulk-actions" class="d-none">
+        <h3>Bulk Actions</h3>
+        <button id="bulk-delete-btn">Delete Selected</button>
+        <hr>
+        <label for="bulk-move-chapter-select">Move to:</label>
+        <select id="bulk-move-chapter-select" multiple></select>
+        <button id="bulk-move-btn">Move Selected</button>
+    </div>
+        </div>
+        <!-- CSV Import Section -->
+        <div class="admin-section">
+            <h2>Import from CSV</h2>
+            <p>
+                Upload a CSV file with the format: <br>
+                <code>question,answer,"chapter1,chapter2",book_name</code>
+            </p>
+            <input type="file" id="csv-import-input" accept=".csv">
+            <button id="import-csv-btn">Import Cards</button>
+        </div>
+    </div>
+
+    <script src="static/js/data.js"></script>
+    <script src="static/js/admin.js"></script>
+
+    <footer>
+        Programa hecho especial para la dermatologa Yiyi.
+    </footer>
+</body>
+</html>
