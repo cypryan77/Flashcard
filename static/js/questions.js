@@ -64,8 +64,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 .filter(Boolean)
                 .join(', ');
 
-            row.insertCell().textContent = card.question;
-            row.insertCell().textContent = card.answer;
+            // Use new data structure and provide fallbacks for image-only cards
+            row.insertCell().textContent = card.front.text || (card.front.image ? '[Image]' : '');
+            row.insertCell().textContent = card.back.text || (card.back.image ? '[Image]' : '');
             row.insertCell().textContent = chapterNames;
             row.insertCell().textContent = progress.correct_count;
             row.insertCell().textContent = progress.incorrect_count;

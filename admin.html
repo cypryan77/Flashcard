@@ -45,12 +45,25 @@
         <!-- Cards Management -->
         <div class="admin-section">
             <h2>Cards</h2>
-    <form id="card-form">
-        <textarea id="card-question" placeholder="Question" required></textarea>
-        <textarea id="card-answer" placeholder="Answer" required></textarea>
-        <select id="card-chapter-select" multiple required></select>
-        <button type="submit">Add Card</button>
-    </form>
+            <form id="card-form">
+                <div class="card-form-side">
+                    <label for="card-front-text">Front Text</label>
+                    <textarea id="card-front-text" placeholder="Text for the front of the card"></textarea>
+                    <label for="card-front-image">Front Image</label>
+                    <input type="file" id="card-front-image" accept="image/*">
+                    <img id="front-image-preview" class="image-preview" src="" alt="Front image preview">
+                </div>
+                <div class="card-form-side">
+                    <label for="card-back-text">Back Text</label>
+                    <textarea id="card-back-text" placeholder="Text for the back of the card"></textarea>
+                    <label for="card-back-image">Back Image</label>
+                    <input type="file" id="card-back-image" accept="image/*">
+                    <img id="back-image-preview" class="image-preview" src="" alt="Back image preview">
+                </div>
+                <label for="card-chapter-select">Chapters</label>
+                <select id="card-chapter-select" multiple required></select>
+                <button type="submit">Add Card</button>
+            </form>
     <div>
         <input type="checkbox" id="select-all-cards">
         <label for="select-all-cards">Select All</label>

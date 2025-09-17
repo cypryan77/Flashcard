@@ -62,19 +62,19 @@ const db = {
         return db.getData().chapters;
     },
 
-    createCard: (question, answer, chapterIds) => {
+    createCard: (cardData) => {
         const data = db.getData();
         const newCard = {
             id: db.generateId(data),
-            question: question,
-            answer: answer,
-            chapters: chapterIds,
+            front: cardData.front, // { text, image }
+            back: cardData.back,   // { text, image }
+            chapters: cardData.chapterIds,
             suspended: false,
-            is_important: false // New property
+            is_important: false
         };
         data.cards.push(newCard);
 
-        chapterIds.forEach(chId => {
+        cardData.chapterIds.forEach(chId => {
             const chapter = data.chapters.find(c => c.id === chId);
             if (chapter) {
                 chapter.cards.push(newCard.id);

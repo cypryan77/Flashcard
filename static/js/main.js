@@ -147,13 +147,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function displayCard(card) {
         cardElement.classList.remove('flipped');
-        const sanitize = (text) => {
-            const temp = document.createElement('div');
-            temp.textContent = text;
-            return temp.innerHTML;
+
+        // Helper function to render a card side
+        const renderSide = (element, sideData) => {
+            element.innerHTML = ''; // Clear previous content
+            const contentWrapper = document.createElement('div');
+            contentWrapper.className = 'card-content';
+
+            if (sideData.image) {
+                const img = document.createElement('img');
+                img.src = sideData.image;
+                img.style.maxWidth = '100%';
+                img.style.maxHeight = '80%';
+                contentWrapper.appendChild(img);
+            }
+            if (sideData.text) {
+                const textDiv = document.createElement('div');
+                textDiv.textContent = sideData.text;
+                textDiv.style.marginTop = sideData.image ? '1rem' : '0';
+                contentWrapper.appendChild(textDiv);
+            }
+            element.appendChild(contentWrapper);
         };
-        cardFront.innerHTML = `<div class="card-content">${sanitize(card.question)}</div>`;
-        cardBack.innerHTML = `<div class="card-content">${sanitize(card.answer)}</div>`;
+
+        renderSide(cardFront, card.front);
+        renderSide(cardBack, card.back);
+
         importantBtn.textContent = card.is_important ? 'Unmark as Important' : 'Mark as Important';
         importantBtn.style.backgroundColor = card.is_important ? '#F59E0B' : '';
         showAnswerBtn.style.display = 'inline-block';
