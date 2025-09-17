@@ -15,6 +15,37 @@
     --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
+/* 1a. Dark Theme */
+[data-theme="dark"] {
+    --bg-color: #1a202c;
+    --panel-bg: #2d3748;
+    --text-color: #e2e8f0;
+    --subtle-text: #a0aec0;
+    --primary-color: #63b3ed;
+    --primary-hover: #90cdf4;
+    --border-color: #4a5568;
+    --shadow-color: rgba(0, 0, 0, 0.2);
+}
+[data-theme="dark"] #card .back { background-color: #1a202c; }
+[data-theme="dark"] li:hover { background-color: #4a5568; }
+
+/* 1b. Sepia Theme */
+[data-theme="sepia"] {
+    --bg-color: #f1e7d0;
+    --panel-bg: #fdf6e3;
+    --text-color: #586e75;
+    --subtle-text: #839496;
+    --primary-color: #268bd2;
+    --primary-hover: #2aa198;
+    --danger-color: #dc322f;
+    --danger-hover: #cb4b16;
+    --border-color: #eee8d5;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+[data-theme="sepia"] #card .back { background-color: #eee8d5; }
+[data-theme="sepia"] li:hover { background-color: #eee8d5; }
+
+
 body {
     font-family: var(--font-family);
     background-color: var(--bg-color);
@@ -243,6 +274,20 @@ li button:hover {
 #notification.show {
     transform: translateX(0);
     opacity: 1;
+}
+
+/* Theme Switcher Styles */
+.theme-switcher {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    gap: 0.5rem;
+}
+.theme-switcher button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+    background-color: var(--subtle-text);
 }
 
 /* Styles for Question Management Page */
