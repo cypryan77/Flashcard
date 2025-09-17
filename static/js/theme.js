@@ -1,7 +1,7 @@
 // Function to set the theme
 function setTheme(themeName) {
     localStorage.setItem('theme', themeName);
-    document.body.setAttribute('data-theme', themeName);
+    document.documentElement.setAttribute('data-theme', themeName);
 }
 
 // Function to apply the saved theme on initial load

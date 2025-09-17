@@ -1,10 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- DOM Elements ---
     const bookCheckboxes = document.getElementById('book-checkboxes');
     const chapterCheckboxes = document.getElementById('chapter-checkboxes');
     const startGameBtn = document.getElementById('start-game');
     const gameSection = document.getElementById('game-section');
     const filterSection = document.getElementById('filter-section');
-
     const timerDisplay = document.getElementById('time');
     const cardContainer = document.getElementById('card-container');
     const cardElement = document.getElementById('card');
@@ -16,21 +16,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const suspendBtn = document.getElementById('suspend-btn');
     const importantBtn = document.getElementById('important-btn');
     const scoreValue = document.getElementById('score-value');
-
-    // Review session elements
     const reviewSection = document.getElementById('review-section');
     const incorrectThresholdInput = document.getElementById('incorrect-threshold');
     const reviewDaysInput = document.getElementById('review-days');
     const startReviewBtn = document.getElementById('start-review-btn');
+    const settingsSection = document.getElementById('settings-section');
+    const timerDurationInput = document.getElementById('timer-duration');
+    const timerDisableCheckbox = document.getElementById('timer-disable');
 
+    // --- Game State ---
     let activeDeck = [];
     let currentCard = null;
     let score = 0;
     let timer;
-    let timeLeft = 10;
+    let gameSettings = {
+        timerDuration: 10,
+        isTimerDisabled: false
+    };
     let questionStartTime;
     let responseTime;
 
+    // --- Book/Chapter Loading ---
     function loadBooks() {
         const books = db.getBooks();
         bookCheckboxes.innerHTML = '';
@@ -51,7 +57,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const previouslySelectedChapterIds = Array.from(chapterCheckboxes.querySelectorAll('input:checked')).map(cb => parseInt(cb.value));
         chapterCheckboxes.innerHTML = '';
         if (selectedBookIds.length === 0) return;
-
         const allChapters = db.getChapters();
         const chaptersToShow = allChapters.filter(c => selectedBookIds.includes(c.book_id));
         chaptersToShow.forEach(chapter => {
@@ -59,16 +64,35 @@ document.addEventListener('DOMContentLoaded', () => {
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
             checkbox.value = chapter.id;
-            if (previouslySelectedChapterIds.includes(chapter.id)) {
-                checkbox.checked = true;
-            }
+            if (previouslySelectedChapterIds.includes(chapter.id)) checkbox.checked = true;
             label.appendChild(checkbox);
             label.append(` ${chapter.name}`);
             chapterCheckboxes.appendChild(label);
         });
     }
 
-    bookCheckboxes.addEventListener('change', updateChapterList);
+    // --- Game Start Logic ---
+    function startGame(deck) {
+        activeDeck = deck;
+        if (activeDeck.length === 0) {
+            alert('No cards to study based on your selection.');
+            return;
+        }
+
+        // Read timer settings
+        gameSettings.isTimerDisabled = timerDisableCheckbox.checked;
+        gameSettings.timerDuration = parseInt(timerDurationInput.value, 10);
+
+        // Hide setup and show game
+        filterSection.style.display = 'none';
+        reviewSection.style.display = 'none';
+        settingsSection.style.display = 'none';
+        gameSection.style.display = 'block';
+
+        score = 0;
+        updateScore();
+        selectNextCard();
+    }
 
     startGameBtn.addEventListener('click', () => {
         const selectedChapterIds = Array.from(chapterCheckboxes.querySelectorAll('input:checked')).map(cb => parseInt(cb.value));
@@ -78,27 +102,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         const allCards = db.getCards();
         const selectedCards = allCards.filter(card => !card.suspended && card.chapters.some(ch_id => selectedChapterIds.includes(ch_id)));
-
-        activeDeck = selectedCards.filter(card => {
-            // Ensure is_important exists
+        const deck = selectedCards.filter(card => {
             const isImportant = card.is_important || false;
             const progress = db.getCardProgress(card.id);
             const masteryGoal = isImportant ? 6 : 3;
             return progress.consecutive_correct_count < masteryGoal;
         });
-
-        if (activeDeck.length === 0) {
-            alert('No cards to study in the selected chapters, or you have already mastered them all!');
-            return;
-        }
-
-        filterSection.style.display = 'none';
-        gameSection.style.display = 'block';
-        score = 0;
-        updateScore();
-        selectNextCard();
+        startGame(deck);
     });
 
+    startReviewBtn.addEventListener('click', () => {
+        const threshold = parseInt(incorrectThresholdInput.value);
+        const days = parseInt(reviewDaysInput.value);
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - days);
+        const allCards = db.getCards();
+        const deck = allCards.filter(card => {
+            const progress = db.getCardProgress(card.id);
+            const lastSeen = progress.last_seen_at ? new Date(progress.last_seen_at) : null;
+            return !card.suspended && progress.incorrect_count >= threshold && lastSeen && lastSeen > cutoffDate;
+        });
+        startGame(deck);
+    });
+
+    // --- Core Game Loop ---
     function selectNextCard() {
         if (activeDeck.length === 0) {
             endGame();
@@ -127,11 +154,8 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         cardFront.innerHTML = `<div class="card-content">${sanitize(card.question)}</div>`;
         cardBack.innerHTML = `<div class="card-content">${sanitize(card.answer)}</div>`;
-
-        // Update important button text
         importantBtn.textContent = card.is_important ? 'Unmark as Important' : 'Mark as Important';
-        importantBtn.style.backgroundColor = card.is_important ? '#F59E0B' : ''; // Amber color if important
-
+        importantBtn.style.backgroundColor = card.is_important ? '#F59E0B' : '';
         showAnswerBtn.style.display = 'inline-block';
         correctBtn.style.display = 'none';
         incorrectBtn.style.display = 'none';
@@ -142,7 +166,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function startTimer() {
-        timeLeft = 10;
+        clearInterval(timer);
+        if (gameSettings.isTimerDisabled) {
+            timerDisplay.parentElement.style.display = 'none';
+            return;
+        }
+        timerDisplay.parentElement.style.display = 'block';
+        let timeLeft = gameSettings.timerDuration;
         timerDisplay.textContent = timeLeft;
         timer = setInterval(() => {
             timeLeft--;
@@ -165,7 +195,32 @@ document.addEventListener('DOMContentLoaded', () => {
         importantBtn.style.display = 'inline-block';
     }
 
+    function handleAnswer(isCorrect) {
+        const progress = db.recordProgress(currentCard.id, isCorrect, responseTime);
+        if (isCorrect) {
+            score += (responseTime <= 10000) ? 10 : 5;
+            updateScore();
+            const masteryGoal = currentCard.is_important ? 6 : 3;
+            if (progress.consecutive_correct_count >= masteryGoal) {
+                activeDeck = activeDeck.filter(card => card.id !== currentCard.id);
+            }
+        }
+        selectNextCard();
+    }
+
+    function endGame() {
+        gameSection.style.display = 'none';
+        filterSection.style.display = 'block';
+        reviewSection.style.display = 'block';
+        settingsSection.style.display = 'block';
+        alert(`Game over! Your score is ${score}`);
+    }
+
+    // --- Event Listeners ---
+    bookCheckboxes.addEventListener('change', updateChapterList);
     showAnswerBtn.addEventListener('click', showAnswer);
+    correctBtn.addEventListener('click', () => handleAnswer(true));
+    incorrectBtn.addEventListener('click', () => handleAnswer(false));
 
     suspendBtn.addEventListener('click', () => {
         db.updateCard(currentCard.id, { suspended: true });
@@ -183,63 +238,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    function handleAnswer(isCorrect) {
-        const progress = db.recordProgress(currentCard.id, isCorrect, responseTime);
-        if (isCorrect) {
-            score += (responseTime <= 10000) ? 10 : 5;
-            updateScore();
-            const masteryGoal = currentCard.is_important ? 6 : 3;
-            if (progress.consecutive_correct_count >= masteryGoal) {
-                activeDeck = activeDeck.filter(card => card.id !== currentCard.id);
-            }
-        }
-        selectNextCard();
-    }
-
-    correctBtn.addEventListener('click', () => handleAnswer(true));
-    incorrectBtn.addEventListener('click', () => handleAnswer(false));
-
     function updateScore() {
         scoreValue.textContent = score;
     }
 
-    function endGame() {
-        gameSection.style.display = 'none';
-        filterSection.style.display = 'block';
-        reviewSection.style.display = 'block'; // Show review section again
-        alert(`Game over! Your score is ${score}`);
-    }
-
-    startReviewBtn.addEventListener('click', () => {
-        const threshold = parseInt(incorrectThresholdInput.value);
-        const days = parseInt(reviewDaysInput.value);
-
-        const cutoffDate = new Date();
-        cutoffDate.setDate(cutoffDate.getDate() - days);
-
-        const allCards = db.getCards();
-        const problemCards = allCards.filter(card => {
-            const progress = db.getCardProgress(card.id);
-            const lastSeen = progress.last_seen_at ? new Date(progress.last_seen_at) : null;
-            return !card.suspended &&
-                   progress.incorrect_count >= threshold &&
-                   lastSeen && lastSeen > cutoffDate;
-        });
-
-        activeDeck = problemCards;
-
-        if (activeDeck.length === 0) {
-            alert('No cards match your review criteria.');
-            return;
-        }
-
-        filterSection.style.display = 'none';
-        reviewSection.style.display = 'none';
-        gameSection.style.display = 'block';
-        score = 0;
-        updateScore();
-        selectNextCard();
-    });
-
+    // --- Initial Load ---
     loadBooks();
 });

@@ -82,7 +82,7 @@ a:hover {
     margin: 0 auto; /* Center the container */
 }
 
-.admin-section, #filter-section, #game-section, #review-section {
+.admin-section, #filter-section, #game-section, #review-section, #settings-section {
     background: var(--panel-bg);
     padding: 1.5rem;
     border-radius: 12px;
@@ -337,6 +337,17 @@ li button:hover {
     margin: 1rem 0;
 }
 .review-controls input[type="number"] {
+    width: 80px;
+    margin-bottom: 0;
+}
+
+.setting-control {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+.setting-control input[type="number"] {
     width: 80px;
     margin-bottom: 0;
 }
